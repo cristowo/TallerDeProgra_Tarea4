@@ -10,6 +10,8 @@ ToThink::ToThink(){
     this->grafoB;   //grafo bipartito
     this->grafoM;   //grafo de maximo flujo
     int max;
+    int total_procesadores;
+    int total_tareas;
 }
 
 /*
@@ -37,17 +39,13 @@ bool ToThink::load(string filename){
 	getline(txt_stream, line); 				            // lee caracteres hasta fin de linea
 	charStream <<line;
 	getline(charStream, number_txt, ' '); 	            // el string hasta que encuentre un espacio
-	int total_procesadores =stoi(number_txt); 			// transforma string a int
+	total_procesadores =stoi(number_txt); 			// transforma string a int
     getline(charStream, number_txt, ' '); 	            // el string hasta que encuentre un espacio
-    int total_tareas =stoi(number_txt); 			    // transforma string a int
+    total_tareas =stoi(number_txt); 			    // transforma string a int
 
     vector<vector<int>> a;
-    // determinar el maximo entre total de procesadores y total de tareas
-    if(total_procesadores<total_tareas){
-        max = total_tareas;
-    }else{
-        max = total_procesadores;
-    }
+    // Suma entre el total de procesadores, el total de tares, y los 2 nuevos nodos
+    max = total_procesadores + total_tareas + 2;
     // generar una matriz de ceros
     for(int i=0;i< max; i++){
         number=new vector<int>;
@@ -64,7 +62,7 @@ bool ToThink::load(string filename){
         int procesador =stoi(number_txt);
         getline(charStream, number_txt, ' ');
         int tarea =stoi(number_txt);
-        a[procesador][tarea]=1;
+        a[procesador + 1][total_procesadores + tarea + 1]=1;
     }
     // cerrar el archivo
     txt_stream.close();
@@ -82,18 +80,13 @@ bool ToThink::load(string filename){
 void ToThink::transformGrafo(){
     vector<vector<int>> grafoAux = this-> grafoB;
     //--------- agregamos un nodo inicial y uno final-----------
-    // agregamos un 1 al final de cada fila
-    for(int i=0;i< max; i++){
-        grafoAux[i].push_back(1);
+    // agregamos un 1 al inicio de cada fila
+    for(int i=0;i< total_procesadores; i++){
+        grafoAux[0][i+1]=1;
     }
-    // agregamos una fila de 1 al inciio
-    vector<int> fila;
-    for(int i=0;i< max+1; i++){
-        fila.push_back(1);
+    for(int i=0;i< total_tareas; i++){
+        grafoAux[i+total_procesadores+1][max-1]=1;
     }
-    // chupapinga daigo
-    grafoAux.insert(grafoAux.begin(),fila);
-    grafoAux[0][max]=0;
     //----------------------------------------------------------
     // asignamos el grafo transformado a grafoM
     this->grafoM = grafoAux;
@@ -110,8 +103,9 @@ void ToThink::solve(string filename){
     // transformar el grafo
     transformGrafo();
     // resolver el problema
+    //print(grafoM);
     MaxFlujo maxFlujo = MaxFlujo(grafoM);
-    int fluj = maxFlujo.fordFulkerson(0, max, max+1);
+    int fluj = maxFlujo.fordFulkerson(0, max-1, max);
     // imprimir el resultado
     //print(grafoM);
     cout << "El maximo flujo es: " << fluj << endl;

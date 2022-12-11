@@ -10,6 +10,8 @@ class ToThink {
         vector<vector<int>> grafoM;
         // Variable que almacena el maximo (numero de nodos)
         int max;
+        int total_procesadores;
+        int total_tareas;
         // lee el archivo de texto
         bool load(string filename);
         // transforma el grafo bipartito en un grafo de max flujo
