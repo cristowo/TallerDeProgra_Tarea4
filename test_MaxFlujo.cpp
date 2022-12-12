@@ -2,8 +2,8 @@
 
 int main(){
     // notar flujo en minicula
-    MaxFlujo maxflujo;
     vector<vector<int>> graph;
+    MaxFlujo maxflujo = MaxFlujo(graph);
     graph = maxflujo.load("test_MaxFlujo.txt");
     // notar Flujo en mayuscula
     MaxFlujo maxFlujo = MaxFlujo(graph);

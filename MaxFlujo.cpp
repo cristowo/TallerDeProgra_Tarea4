@@ -4,10 +4,6 @@
 * Clase Max Flujo, encargada de encontrar el flujo maximo
 */
 
-// Constructor
-MaxFlujo::MaxFlujo(){
-
-}
 // Constructor con parametros
 MaxFlujo::MaxFlujo(vector<vector<int>> grafo){
     this-> grafo = grafo;
@@ -18,33 +14,33 @@ MaxFlujo::MaxFlujo(vector<vector<int>> grafo){
 * parametros: grafo, nodo fuente, nodo sumidero, vector de padres, maximo
 * retorno: true si existe un camino desde el nodo fuente al nodo sumidero
 */
-bool MaxFlujo::DFS(int s, int t, int parent[], int max)
+bool MaxFlujo::DFS(int s, int t, int padre[], int max)
 {
     // crea un arreglo de visitados
-    bool visited[max];
-    memset(visited, 0, sizeof(visited));
+    bool visitados[max];
+    memset(visitados, 0, sizeof(visitados));
     
     // crea una cola
-    queue<int> q;
-    q.push(s);
+    queue<int> cola;
+    cola.push(s);
     // marca el nodo fuente como visitado
-    visited[s] = true;
-    parent[s] = -1;
+    visitados[s] = true;
+    padre[s] = -1;
 
     // mientras la cola no este vacia
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
+    while (!cola.empty()) {
+        int u = cola.front();
+        cola.pop();
         for (int v = 0; v < max ; v++) {
-            if (visited[v] == false && grafo[u][v] > 0) {
+            if (visitados[v] == false && grafo[u][v] > 0) {
                 // Si encontramos un camino desde el nodo fuente al nodo sumidero
                 if (v == t) {
-                    parent[v] = u;
+                    padre[v] = u;
                     return true;
                 }
-                q.push(v);
-                parent[v] = u;
-                visited[v] = true;
+                cola.push(v);
+                padre[v] = u;
+                visitados[v] = true;
             }
         }
     }
@@ -62,31 +58,31 @@ int MaxFlujo::fordFulkerson(int s, int t, int max)
 {
     int u, v;
     // Crea una matriz de residuos
-    int parent[max];
-    int max_flow = 0;
+    int padre[max];
+    int FlujoMaximo = 0;
 
     // Mientras exista un camino desde el nodo fuente al nodo sumidero
-    while (DFS(s, t, parent, max)) {
+    while (DFS(s, t, padre, max)) {
         // Encuentra el flujo maximo a traves del camino
-        int path_flow = INT_MAX;
-        for (v = t; v != s; v = parent[v]) {
-            u = parent[v];
-            path_flow = min(path_flow, grafo[u][v]);
+        int CaminoFlujo = INT_MAX;
+        for (v = t; v != s; v = padre[v]) {
+            u = padre[v];
+            CaminoFlujo = min(CaminoFlujo, grafo[u][v]);
         }
 
         // Actualiza los residuos de los arcos y los arcos reversos
-        for (v = t; v != s; v = parent[v]) {
-            u = parent[v];
-            grafo[u][v] -= path_flow;
-            grafo[v][u] += path_flow;
+        for (v = t; v != s; v = padre[v]) {
+            u = padre[v];
+            grafo[u][v] -= CaminoFlujo;
+            grafo[v][u] += CaminoFlujo;
         }
 
         // Agrega el flujo maximo al flujo total
-        max_flow += path_flow;
+        FlujoMaximo += CaminoFlujo;
     }
 
     // Retorna el flujo total
-    return max_flow;
+    return FlujoMaximo;
 }
 
 /*

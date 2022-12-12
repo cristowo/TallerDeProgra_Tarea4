@@ -26,7 +26,7 @@ bool ToThink::load(string filename){
 	fstream txt_stream(filename);
 	stringstream charStream;
 	string number_txt;
-	vector<int> *number;
+	vector<int> *numero;
 	
 	if (!txt_stream.is_open()){
 		cout<<"Archivo: " << filename << " no encontrado" << endl;
@@ -43,16 +43,15 @@ bool ToThink::load(string filename){
     getline(charStream, number_txt, ' '); 	            // el string hasta que encuentre un espacio
     total_tareas =stoi(number_txt); 			    // transforma string a int
 
-    vector<vector<int>> a;
     // Suma entre el total de procesadores, el total de tares, y los 2 nuevos nodos
     max = total_procesadores + total_tareas + 2;
     // generar una matriz de ceros
     for(int i=0;i< max; i++){
-        number=new vector<int>;
+        numero=new vector<int>;
         for(int j=0;j< max; j++){
-            number->insert(number->begin(),0);
+            numero->insert(numero->begin(),0);
         }
-        a.push_back(*number);
+        this->grafoB.push_back(*numero);
     }
     // leer el archivo y llenar la matriz a con 1 si la tarea i puede ser ejecutada en el procesador j
     while(getline(txt_stream, line)){
@@ -62,13 +61,10 @@ bool ToThink::load(string filename){
         int procesador =stoi(number_txt);
         getline(charStream, number_txt, ' ');
         int tarea =stoi(number_txt);
-        a[procesador + 1][total_procesadores + tarea + 1]=1;
+        this->grafoB[procesador + 1][total_procesadores + tarea + 1]=1;
     }
     // cerrar el archivo
     txt_stream.close();
-    // asignar la matriz a a grafoB
-    this->grafoB = a;
-
     return true;
 }
 
@@ -78,18 +74,15 @@ bool ToThink::load(string filename){
 *  retorno:
 */
 void ToThink::transformGrafo(){
-    vector<vector<int>> grafoAux = this-> grafoB;
     //--------- agregamos un nodo inicial y uno final-----------
-    // agregamos un 1 al inicio de cada fila
+    //------------------Junto a sus direcciones----------------
     for(int i=0;i< total_procesadores; i++){
-        grafoAux[0][i+1]=1;
+        this-> grafoB[0][i+1]=1;
     }
     for(int i=0;i< total_tareas; i++){
-        grafoAux[i+total_procesadores+1][max-1]=1;
+        this-> grafoB[i+total_procesadores+1][max-1]=1;
     }
-    //----------------------------------------------------------
-    // asignamos el grafo transformado a grafoM
-    this->grafoM = grafoAux;
+    this->grafoM = this->grafoB;
 }
 
 /*
@@ -102,13 +95,11 @@ void ToThink::solve(string filename){
     load(filename);
     // transformar el grafo
     transformGrafo();
-    // resolver el problema
-    //print(grafoM);
+    // inicializar el MaxFlujo
     MaxFlujo maxFlujo = MaxFlujo(grafoM);
-    int fluj = maxFlujo.fordFulkerson(0, max-1, max);
-    // imprimir el resultado
-    //print(grafoM);
-    cout << "El maximo flujo es: " << fluj << endl;
+    //obtener el maximo flujo
+    int solve = maxFlujo.fordFulkerson(0, max-1, max);
+    cout << "El maximo flujo es: " << solve << endl;
 }
 
 /*
